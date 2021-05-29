@@ -29,7 +29,11 @@ exports.create = async function (req, res, next) {
 
 exports.update = async function (req, res, next) {
   try {
-    const user = await User.findByIdAndUpdate(req.params.id, req.body);
+    console.log(req.body);
+    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    console.log(user);
     return generateResponse(res, 200, user);
   } catch (err) {
     return generateResponse(res, 500);
