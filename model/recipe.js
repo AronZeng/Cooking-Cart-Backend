@@ -1,23 +1,25 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const recipeSchema = Schema({
   name: { type: String, required: true },
   ingredients: [
     {
-      ingredient: { type: Schema.Types.ObjectId, ref: 'ingredient' },
+      ingredient: { type: Schema.Types.ObjectId, required: true },
       amount: { type: Number, required: true },
     },
   ],
   tags: [{ type: String }],
-  instructions: [{ type: String }],
+  instructions: String,
   isDeleted: { type: Boolean, default: false },
-  isPublic: { type: Boolean, default: true },
   owner: { type: Schema.Types.ObjectId, required: true },
-  sharedWith: [{ type: Schema.Types.ObjectId }],
   description: String,
+  imageUrl: String,
+  //extras for later
+  isPublic: { type: Boolean, default: true },
+  sharedWith: [{ type: Schema.Types.ObjectId, ref: "user" }],
 });
 
-const Recipe = mongoose.model('recipe', recipeSchema);
+const Recipe = mongoose.model("recipe", recipeSchema);
 
 module.exports = Recipe;

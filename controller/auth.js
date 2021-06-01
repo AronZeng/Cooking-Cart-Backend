@@ -1,9 +1,9 @@
-const bcrypt = require('bcrypt');
-const User = require('../model/user');
-const Token = require('../model/token');
-const jwt = require('jsonwebtoken');
-const generateResponse = require('../helper/generateResponse');
-require('dotenv').config();
+const bcrypt = require("bcrypt");
+const User = require("../model/user");
+const Token = require("../model/token");
+const jwt = require("jsonwebtoken");
+const generateResponse = require("../helper/generateResponse");
+require("dotenv").config();
 
 exports.login = async function (req, res, next) {
   try {
@@ -17,7 +17,7 @@ exports.login = async function (req, res, next) {
             const token = jwt.sign(
               { userId: user._id },
               process.env.TOKEN_SECRET,
-              { expiresIn: '10h' }
+              { expiresIn: "10h" }
             );
             await Token.create({
               user: user._id,
@@ -25,10 +25,10 @@ exports.login = async function (req, res, next) {
             });
             return generateResponse(res, 200, { token: token, user: user });
           } catch (err) {
-            res.status(500);
+            return generateResponse(res, 500, {}, err.message);
           }
         } else {
-          return generateResponse(res, 401, {}, 'Invalid Login');
+          return generateResponse(res, 401, {}, "Invalid Login");
         }
       }
     );
@@ -40,17 +40,21 @@ exports.login = async function (req, res, next) {
 exports.logout = async function (req, res, next) {
   try {
     const user = await User.findOne({
-      _id: jwt.decode(req.headers['authorization']).userId,
+      _id: jwt.decode(req.headers["authorization"]).userId,
     });
     //return unauthorized if the user is trying to lo
     if (!user) {
       return generateResponse(res, 401);
     }
-    await Token.findOneAndRemove({
+    const removedToken = await Token.findOneAndRemove({
       user: user._id,
-      token: req.headers['authorization'],
+      token: req.headers["authorization"],
     });
-    return generateResponse(res, 200);
+    if (removedToken) {
+      return generateResponse(res, 200);
+    } else {
+      return generateResponse(res, 400, {}, "User is already logged out");
+    }
   } catch (err) {
     return generateResponse(res, 500);
   }
